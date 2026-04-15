@@ -63,8 +63,13 @@
 
         <div class="card">
             <h3>Cinépolis Portales</h3>
-            <button class="btn" onclick="enviarAccion('Posicionamiento')">📍 Reportar Posición</button>
-            <button id="btn-sync" class="btn" style="background: #ff9f0a; display: none;" onclick="sincronizar()">🔄 Sincronizar Pendientes</button>
+            <p style="color: var(--gray); font-size: 13px; margin-top: -10px;">Turno Nocturno</p>
+            
+            <button class="btn" style="background: #32ade6;" onclick="enviarAccion('Posicionamiento')">📍 1. Posicionamiento</button>
+            <button class="btn" style="background: var(--blue); margin-top: 12px;" onclick="enviarAccion('Inicio de Ruta')">🚀 2. Iniciar Ruta</button>
+            <button class="btn" style="background: #ff3b30; margin-top: 12px;" onclick="enviarAccion('Finalización')">🏁 3. Finalizar Ruta</button>
+            
+            <button id="btn-sync" class="btn" style="background: #ff9f0a; display: none; margin-top: 15px;" onclick="sincronizar()">🔄 Sincronizar Pendientes</button>
         </div>
     </div>
 
