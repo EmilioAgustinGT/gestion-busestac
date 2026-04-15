@@ -3,79 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BusesTAC - Gestión</title>
+    <title>BusesTAC - Acceso</title>
     <style>
         :root { --bg: #000; --card: #1c1c1e; --blue: #0a84ff; --green: #32d74b; --text: #fff; --gray: #8e8e93; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
-        .card { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 20px; border: 0.5px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .btn { background: var(--blue); border: none; border-radius: 12px; color: #fff; padding: 16px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; transition: opacity 0.2s; }
-        .btn:active { opacity: 0.7; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; }
+        .card { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 20px; border: 0.5px solid #333; }
+        .btn { background: var(--blue); border: none; border-radius: 12px; color: #fff; padding: 16px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
         .btn-green { background: var(--green); }
-        .input { background: #2c2c2e; border: none; border-radius: 10px; color: #fff; padding: 14px; width: 92%; margin-top: 10px; font-size: 15px; }
-        .bonus-ring { width: 80px; height: 80px; border: 6px solid #333; border-top: 6px solid var(--green); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .status-dot { width: 10px; height: 10px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .input { background: #2c2c2e; border: none; border-radius: 10px; color: #fff; padding: 14px; width: 92%; margin-top: 10px; font-size: 16px; }
+        #app { display: none; } /* Oculto hasta que loguee */
+        .login-screen { text-align: center; margin-top: 50px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 style="font-size: 24px; margin: 0;">BusesTAC</h1>
-        <div style="font-size: 12px; color: var(--gray)"><span class="status-dot"></span> Sistema Activo</div>
-    </div>
-    
-    <div class="card" style="text-align: center;">
-        <div class="bonus-ring">85%</div>
-        <p style="margin: 0; font-size: 14px; color: var(--gray);">Meta Bono Q300.00</p>
+
+    <div id="login" class="login-screen">
+        <h1 style="font-size: 32px; margin-bottom: 10px;">BusesTAC</h1>
+        <p style="color: var(--gray);">Ingresa tus credenciales</p>
+        <div class="card">
+            <input type="text" id="user" class="input" placeholder="Usuario">
+            <input type="password" id="pin" class="input" placeholder="PIN de 4 dígitos" maxlength="4" inputmode="numeric">
+            <button class="btn" onclick="validarAcceso()">Entrar</button>
+        </div>
     </div>
 
-    <div class="card">
-        <h3 style="margin-top: 0; font-weight: 500;">Cinépolis Portales</h3>
-        <p style="color: var(--gray); font-size: 13px;">Turno Nocturno - 12:00 AM</p>
-        <button class="btn" onclick="enviarDatos('ruta', 'Posicionamiento')">📍 Reportar Posición</button>
-    </div>
+    <div id="app">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 id="saludo">Hola</h2>
+            <button onclick="location.reload()" style="background: none; border: none; color: var(--blue); font-size: 14px;">Salir</button>
+        </div>
 
-    <div class="card">
-        <h3 style="margin-top: 0; font-weight: 500;">Reportar Gasto</h3>
-        <select id="cat" class="input">
-            <option value="Gasolina">Gasolina</option>
-            <option value="Parqueo">Parqueo</option>
-            <option value="Mantenimiento">Mantenimiento</option>
-        </select>
-        <input type="number" id="monto" class="input" placeholder="Monto en Quetzales (Q)">
-        <input type="file" id="foto" class="input" accept="image/*" style="font-size: 12px;">
-        <button class="btn btn-green" onclick="subirGasto()">📤 Enviar Factura</button>
+        <div class="card" style="text-align: center;">
+            <div style="width: 70px; height: 70px; border: 6px solid #333; border-top: 6px solid var(--green); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-weight: bold;">85%</div>
+            <p style="margin: 0; font-size: 14px; color: var(--gray);">Meta Bono Q300.00</p>
+        </div>
+
+        <div class="card">
+            <h3>Cinépolis Portales</h3>
+            <button class="btn" onclick="enviarAccion('Ruta', 'Posicionamiento')">📍 Reportar Posición</button>
+        </div>
     </div>
 
     <script>
-        // ESTA ES TU LLAVE DE CONEXIÓN
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby1n-21i6A8WrfirRZQyGVRRUO6wLpWO-PxrbiXj2Pe45Twj_hOyeL613NxW-udJDGZlA/exec";
+        const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; // PEGA AQUÍ TU URL DE EXECUTABLE
+        let usuarioActual = "";
 
-        async function enviarDatos(tipo, accion) {
-            const data = { tipo: tipo, piloto: "Piloto Prueba", accion: accion, fecha: new Date().toLocaleDateString() };
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
-                alert("¡Reporte enviado con éxito!");
-            } catch (e) { alert("Error al enviar"); }
+        async function validarAcceso() {
+            const user = document.getElementById('user').value;
+            const pin = document.getElementById('pin').value;
+            
+            if(!user || !pin) return alert("Completa los datos");
+
+            const resp = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ tipo: "login", usuario: user, pin: pin })
+            });
+            
+            const res = await resp.json();
+            
+            if(res.status === "success") {
+                usuarioActual = res.nombre;
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('saludo').innerText = "Hola, " + res.nombre;
+            } else {
+                alert("Usuario o PIN incorrecto");
+            }
         }
 
-        function subirGasto() {
-            const file = document.getElementById('foto').files[0];
-            if(!file) return alert("Por favor selecciona una foto");
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const payload = {
-                    tipo: "gasto", piloto: "Piloto Prueba",
-                    categoria: document.getElementById('cat').value,
-                    monto: document.getElementById('monto').value,
-                    archivo: e.target.result.split(',')[1],
-                    mimeType: file.type, nombreArchivo: file.name
-                };
-                try {
-                    await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' });
-                    alert("Gasto registrado y foto subida.");
-                } catch (e) { alert("Error al subir"); }
-            };
-            reader.readAsDataURL(file);
+        async function enviarAccion(tipo, accion) {
+            // Aquí va la lógica de envío de rutas que ya tenías
+            alert("Acción registrada para " + usuarioActual);
         }
     </script>
 </body>
