@@ -73,6 +73,7 @@
         <div class="card">
             <h3>Cinépolis Portales</h3>
             <button class="btn" onclick="enviarAccion('Posicionamiento')">📍 Reportar Posición</button>
+            <button id="btn-sync" class="btn" style="background: #ff9f0a; display: none;" onclick="sincronizar()">🔄 Sincronizar Pendientes</button>
         </div>
     </div>
 
@@ -83,85 +84,91 @@
         const loginScreen = document.getElementById('login');
         const appScreen = document.getElementById('app');
         const greeting = document.getElementById('saludo');
+        const btnSync = document.getElementById('btn-sync');
+        
+        // Memoria del teléfono
+        let pendientes = JSON.parse(localStorage.getItem('busestac_pendientes')) || [];
 
-        // Funciones de Carga
+        // Registrar Service Worker para abrir sin internet
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
         function mostrarCarga() { loading.style.display = 'flex'; }
         function ocultarCarga() { loading.style.display = 'none'; }
 
-        // Validar Acceso (Login)
+        function actualizarUI() {
+            if(pendientes.length > 0) {
+                btnSync.style.display = 'block';
+                btnSync.innerText = `🔄 Subir ${pendientes.length} reporte(s) guardado(s)`;
+            } else {
+                btnSync.style.display = 'none';
+            }
+        }
+
         async function validarAcceso() {
             const user = document.getElementById('user').value;
             const pin = document.getElementById('pin').value;
-            
             if(!user || !pin) return alert("Completa los datos");
 
-            mostrarCarga(); // MOSTRAR CARGA
+            // Si no hay internet al loguearse, pero ya había entrado antes (opcional avanzado)
+            if(!navigator.onLine) return alert("Necesitas internet para iniciar sesión la primera vez.");
 
+            mostrarCarga();
             try {
-                const resp = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ tipo: "login", usuario: user, pin: pin })
-                });
-                
+                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ tipo: "login", usuario: user, pin: pin }) });
                 const res = await resp.json();
-                
                 if(res.status === "success") {
                     usuarioActual = res.nombre;
                     loginScreen.style.display = 'none';
                     appScreen.style.display = 'block';
                     greeting.innerText = "Hola, " + res.nombre;
-                    // Limpiar inputs
-                    document.getElementById('user').value = "";
-                    document.getElementById('pin').value = "";
-                } else {
-                    alert("Usuario o PIN incorrecto");
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert("Hubo un problema de conexión.");
-            } finally {
-                ocultarCarga(); // OCULTAR CARGA
-            }
+                    actualizarUI();
+                } else { alert("Usuario o PIN incorrecto"); }
+            } catch (e) { alert("Error de conexión"); } 
+            finally { ocultarCarga(); }
         }
 
-        // Salir (Cerrar sesión)
-        function salir() {
-            usuarioActual = "";
-            appScreen.style.display = 'none';
-            loginScreen.style.display = 'flex';
-        }
-
-        // Enviar Reporte de Ruta
         async function enviarAccion(fase) {
-            if(!usuarioActual) return alert("Por favor, inicia sesión");
-            
-            mostrarCarga(); // MOSTRAR CARGA
+            if(!usuarioActual) return alert("Inicia sesión");
+            const data = { tipo: "ruta", piloto: usuarioActual, cine: "Cinépolis Portales", accion: fase, fecha: new Date().toLocaleDateString() };
 
-            const data = {
-                tipo: "ruta",
-                piloto: usuarioActual,
-                cine: "Cinépolis Portales",
-                accion: fase,
-                fecha: new Date().toLocaleDateString()
-            };
-
-            try {
-                const resp = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-                
-                if (resp.ok) {
-                    alert("¡" + fase + " reportado con éxito!");
-                } else {
-                    throw new Error('Network response was not ok.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert("Error al reportar. Intenta de nuevo.");
-            } finally {
-                ocultarCarga(); // OCULTAR CARGA
+            // Verifica si el celular tiene señal
+            if(navigator.onLine) {
+                mostrarCarga();
+                try {
+                    await fetch(API_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
+                    alert("¡Reportado con éxito!");
+                } catch(e) { guardarOffline(data); }
+                ocultarCarga();
+            } else {
+                guardarOffline(data);
             }
+        }
+
+        function guardarOffline(data) {
+            pendientes.push(data);
+            localStorage.setItem('busestac_pendientes', JSON.stringify(pendientes));
+            actualizarUI();
+            alert("⚠️ Sin señal. Reporte guardado en el celular. Súbelo cuando tengas WiFi.");
+        }
+
+        async function sincronizar() {
+            if(!navigator.onLine) return alert("Aún no tienes internet.");
+            mostrarCarga();
+            
+            // Envía los guardados uno por uno
+            for(let i = pendientes.length - 1; i >= 0; i--) {
+                try {
+                    await fetch(API_URL, { method: 'POST', body: JSON.stringify(pendientes[i]), mode: 'no-cors' });
+                    pendientes.splice(i, 1); // Lo borra si se envió bien
+                } catch(e) { break; } // Si falla, se detiene
+            }
+            
+            localStorage.setItem('busestac_pendientes', JSON.stringify(pendientes));
+            actualizarUI();
+            ocultarCarga();
+            if(pendientes.length === 0) alert("✅ Todos los reportes han sido sincronizados.");
         }
     </script>
 </body>
