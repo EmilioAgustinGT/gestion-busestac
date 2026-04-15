@@ -3,43 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BusesTAC - Gestión</title>
+    <title>BusesTAC - Sistema</title>
     <style>
         :root { --bg: #000; --card: #1c1c1e; --blue: #0a84ff; --green: #32d74b; --text: #fff; --gray: #8e8e93; --red: #ff3b30; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; }
         .card { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 20px; border: 0.5px solid #333; }
         .btn { background: var(--blue); border: none; border-radius: 12px; color: #fff; padding: 16px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; transition: 0.2s; }
-        .btn:active { opacity: 0.7; transform: scale(0.98); }
         .input { background: #2c2c2e; border: none; border-radius: 10px; color: #fff; padding: 14px; width: 92%; margin-top: 10px; font-size: 16px; }
-        select.input { width: 100%; }
-        #app { display: none; }
-        .login-screen { text-align: center; margin-top: 50px; }
-        
-        /* Spinner y Modales iOS */
+        #app, #admin-panel { display: none; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; border: 0.5px solid #333; }
+        .stat-val { font-size: 22px; font-weight: bold; color: var(--blue); }
         .loading-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; }
         .spinner { width: 35px; height: 35px; border: 3px solid var(--green); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
         .ios-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: 0.3s; }
         .ios-modal-box { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); border-radius: 14px; width: 270px; text-align: center; color: white; border: 1px solid rgba(255,255,255,0.1); transform: scale(1.1); transition: 0.3s; }
-        .ios-modal-content { padding: 20px; font-size: 15px; }
         .ios-modal-btn { border-top: 1px solid rgba(255,255,255,0.1); color: var(--blue); padding: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div id="iosModal" class="ios-modal-overlay">
-        <div class="ios-modal-box" id="iosModalBox">
-            <div id="modalText" class="ios-modal-content"></div>
-            <div class="ios-modal-btn" onclick="cerrarAlerta()">OK</div>
-        </div>
-    </div>
-
+    <div id="iosModal" class="ios-modal-overlay"><div class="ios-modal-box" id="iosModalBox"><div id="modalText" style="padding:20px"></div><div class="ios-modal-btn" onclick="cerrarAlerta()">OK</div></div></div>
     <div id="loading" class="loading-screen"><div class="spinner"></div></div>
 
-    <div id="login" class="login-screen">
-        <h1 style="font-size: 32px; margin-bottom: 5px;">BusesTAC</h1>
-        <p style="color: var(--gray); margin-bottom: 30px;">Gestión Operativa</p>
+    <div id="login" style="text-align:center; margin-top:50px;">
+        <h1 style="font-size:32px;">BusesTAC</h1>
         <div class="card">
             <input type="text" id="user" class="input" placeholder="Usuario">
             <input type="password" id="pin" class="input" placeholder="PIN" maxlength="4" inputmode="numeric">
@@ -47,113 +35,97 @@
         </div>
     </div>
 
+    <div id="admin-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>Panel Admin</h2>
+            <button onclick="location.reload()" style="background:none; border:none; color:var(--blue);">Salir</button>
+        </div>
+        <div class="stat-grid">
+            <div class="stat-card"><div class="stat-val" id="dash-rutas">0</div><div style="font-size:12px; color:var(--gray)">Rutas</div></div>
+            <div class="stat-card"><div class="stat-val" id="dash-gastos">Q0</div><div style="font-size:12px; color:var(--gray)">Gastos</div></div>
+        </div>
+        <div class="card">
+            <h3 style="margin-top:0">Últimos Movimientos</h3>
+            <div id="movimientos-list" style="font-size:14px;"></div>
+        </div>
+        <button class="btn" onclick="document.getElementById('admin-panel').style.display='none'; document.getElementById('app').style.display='block';">Ir a Modo Piloto</button>
+    </div>
+
     <div id="app">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 id="saludo" style="margin:0">Hola</h2>
-            <button onclick="location.reload()" style="background:none; border:none; color:var(--blue); font-size:15px; font-weight:500;">Salir</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 id="saludo">Hola</h2>
+            <button id="btn-admin-back" onclick="document.getElementById('app').style.display='none'; document.getElementById('admin-panel').style.display='block';" style="display:none; background:none; border:none; color:var(--blue);">Panel Admin</button>
         </div>
-
         <div class="card">
-            <h3 style="margin-top:0">Cinépolis Portales</h3>
-            <button class="btn" style="background:#32ade6" onclick="enviarAccion('Posicionamiento')">📍 1. Posicionamiento</button>
-            <button class="btn" style="background:var(--blue)" onclick="enviarAccion('Inicio de Ruta')">🚀 2. Iniciar Ruta</button>
-            <button class="btn" style="background:var(--red)" onclick="enviarAccion('Finalización')">🏁 3. Finalizar Ruta</button>
-            <button id="btn-sync" class="btn" style="background:#ff9f0a; display:none" onclick="sincronizar()">🔄 Sincronizar Pendientes</button>
+            <h3>Cinépolis Portales</h3>
+            <button class="btn" style="background:#32ade6" onclick="enviarAccion('Posicionamiento')">📍 Posicionamiento</button>
+            <button class="btn" onclick="enviarAccion('Inicio de Ruta')">🚀 Iniciar Ruta</button>
+            <button class="btn" style="background:var(--red)" onclick="enviarAccion('Finalización')">🏁 Finalizar Ruta</button>
         </div>
-
         <div class="card">
-            <h3 style="margin-top:0">Reportar Gasto</h3>
-            <select id="gasto-cat" class="input">
-                <option value="Gasolina">⛽ Gasolina</option>
-                <option value="Parqueo">🅿️ Parqueo</option>
-                <option value="Otros">📦 Otros</option>
-            </select>
-            <input type="number" id="gasto-monto" class="input" placeholder="Monto en Quetzales (Q)">
-            <p style="font-size: 13px; color: var(--gray); margin: 15px 0 5px 0;">Foto de Factura:</p>
-            <input type="file" id="gasto-foto" class="input" accept="image/*" capture="camera">
-            <button class="btn" style="background:var(--green); margin-top:20px;" onclick="subirGasto()">📤 Enviar Factura</button>
+            <h3>Reportar Gasto</h3>
+            <select id="g-cat" class="input"><option>Gasolina</option><option>Parqueo</option></select>
+            <input type="number" id="g-monto" class="input" placeholder="Monto Q">
+            <input type="file" id="g-foto" class="input" accept="image/*" capture="camera">
+            <button class="btn" style="background:var(--green)" onclick="subirGasto()">📤 Enviar</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycby1n-21i6A8WrfirRZQyGVRRUO6wLpWO-PxrbiXj2Pe45Twj_hOyeL613NxW-udJDGZlA/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycby1n-21i6A8WrfirRZQyGVRRUO6wLpWO-PxrbiXj2Pe45Twj_hOyeL613NxW-udJDGZlA/exec";
         let usuarioActual = "";
-        let pendientes = JSON.parse(localStorage.getItem('busestac_pendientes')) || [];
 
-        function mostrarCarga() { document.getElementById('loading').style.display = 'flex'; }
-        function ocultarCarga() { document.getElementById('loading').style.display = 'none'; }
-        
-        function mostrarAlerta(msg) {
-            document.getElementById('modalText').innerHTML = msg;
-            const m = document.getElementById('iosModal');
-            m.style.display = 'flex';
-            setTimeout(() => { m.style.opacity = '1'; document.getElementById('iosModalBox').style.transform = 'scale(1)'; }, 10);
-        }
-        function cerrarAlerta() {
-            const m = document.getElementById('iosModal');
-            m.style.opacity = '0'; document.getElementById('iosModalBox').style.transform = 'scale(1.1)';
-            setTimeout(() => { m.style.display = 'none'; }, 300);
-        }
+        function mostrarAlerta(t){ document.getElementById('modalText').innerText=t; document.getElementById('iosModal').style.display='flex'; setTimeout(()=>document.getElementById('iosModal').style.opacity='1',10); }
+        function cerrarAlerta(){ document.getElementById('iosModal').style.opacity='0'; setTimeout(()=>document.getElementById('iosModal').style.display='none',300); }
 
         async function validarAcceso() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pin').value;
-            if(!u || !p) return mostrarAlerta("Ingresa tus datos.");
-            mostrarCarga();
+            document.getElementById('loading').style.display='flex';
             try {
-                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ tipo: "login", usuario: u, pin: p }) });
-                const res = await resp.json();
-                if(res.status === "success") {
+                const r = await fetch(API_URL, {method:'POST', body:JSON.stringify({tipo:"login", usuario:u, pin:p})});
+                const res = await r.json();
+                if(res.status==="success") {
                     usuarioActual = res.nombre;
-                    document.getElementById('login').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
+                    document.getElementById('login').style.display='none';
+                    if(res.rol === "Admin") {
+                        document.getElementById('admin-panel').style.display='block';
+                        document.getElementById('btn-admin-back').style.display='block';
+                        document.getElementById('dash-rutas').innerText = res.stats.totalRutas;
+                        document.getElementById('dash-gastos').innerText = "Q" + res.stats.totalGastos;
+                        document.getElementById('movimientos-list').innerHTML = res.stats.ultimosMovimientos.map(m => `<div style="border-bottom:1px solid #333; padding:8px 0;">${m.hora} - ${m.piloto}: ${m.accion}</div>`).join('');
+                    } else {
+                        document.getElementById('app').style.display='block';
+                    }
                     document.getElementById('saludo').innerText = "Hola, " + res.nombre;
-                    if(pendientes.length > 0) document.getElementById('btn-sync').style.display = 'block';
-                } else { mostrarAlerta("Claves incorrectas."); }
-            } catch(e) { mostrarAlerta("Sin conexión."); } finally { ocultarCarga(); }
+                } else { mostrarAlerta("Error de acceso."); }
+            } catch(e) { mostrarAlerta("Sin internet."); }
+            document.getElementById('loading').style.display='none';
         }
 
-        async function enviarAccion(fase) {
-            const ahora = new Date();
-            const data = { 
-                tipo: "ruta", piloto: usuarioActual, cine: "Cinépolis Portales", accion: fase,
-                fechaExacta: ahora.toLocaleDateString('es-GT'), horaExacta: ahora.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })
-            };
-            if(navigator.onLine) {
-                mostrarCarga();
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
-                ocultarCarga();
-                mostrarAlerta("✅ Reporte enviado.");
-            } else {
-                pendientes.push(data);
-                localStorage.setItem('busestac_pendientes', JSON.stringify(pendientes));
-                document.getElementById('btn-sync').style.display = 'block';
-                mostrarAlerta("⚠️ Guardado offline.");
-            }
+        async function enviarAccion(a) {
+            const h = new Date();
+            const d = {tipo:"ruta", piloto:usuarioActual, cine:"Portales", accion:a, fechaExacta:h.toLocaleDateString(), horaExacta:h.toLocaleTimeString()};
+            document.getElementById('loading').style.display='flex';
+            await fetch(API_URL, {method:'POST', body:JSON.stringify(d), mode:'no-cors'});
+            document.getElementById('loading').style.display='none';
+            mostrarAlerta("✅ " + a + " registrado.");
         }
 
         function subirGasto() {
-            const cat = document.getElementById('gasto-cat').value;
-            const monto = document.getElementById('gasto-monto').value;
-            const file = document.getElementById('gasto-foto').files[0];
-            if(!monto || !file) return mostrarAlerta("Falta monto o foto.");
-            
-            mostrarCarga();
+            const m = document.getElementById('g-monto').value;
+            const f = document.getElementById('g-foto').files[0];
+            if(!m || !f) return mostrarAlerta("Faltan datos.");
+            document.getElementById('loading').style.display='flex';
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const ahora = new Date();
-                const payload = {
-                    tipo: "gasto", piloto: usuarioActual, categoria: cat, monto: monto,
-                    archivo: e.target.result.split(',')[1], mimeType: file.type, nombreArchivo: "Factura_" + usuarioActual + "_" + Date.now(),
-                    fechaExacta: ahora.toLocaleDateString('es-GT'), horaExacta: ahora.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })
-                };
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' });
-                ocultarCarga();
-                mostrarAlerta("✅ Factura subida correctamente.");
-                document.getElementById('gasto-monto').value = "";
-                document.getElementById('gasto-foto').value = "";
+                const h = new Date();
+                const p = {tipo:"gasto", piloto:usuarioActual, categoria:document.getElementById('g-cat').value, monto:m, archivo:e.target.result.split(',')[1], mimeType:f.type, nombreArchivo:"Factura_"+Date.now(), fechaExacta:h.toLocaleDateString(), horaExacta:h.toLocaleTimeString()};
+                await fetch(API_URL, {method:'POST', body:JSON.stringify(p), mode:'no-cors'});
+                document.getElementById('loading').style.display='none';
+                mostrarAlerta("✅ Gasto enviado.");
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(f);
         }
     </script>
 </body>
