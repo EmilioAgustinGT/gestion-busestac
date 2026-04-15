@@ -133,7 +133,21 @@
 
         async function enviarAccion(fase) {
             if(!usuarioActual) return mostrarAlerta("Inicia sesión primero");
-            const data = { tipo: "ruta", piloto: usuarioActual, cine: "Cinépolis Portales", accion: fase, fecha: new Date().toLocaleDateString() };
+            
+            // 1. Capturamos la hora exacta del celular al momento del clic
+            const ahora = new Date();
+            const fechaCelular = ahora.toLocaleDateString('es-GT');
+            const horaCelular = ahora.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            // 2. Empaquetamos esos datos exactos
+            const data = { 
+                tipo: "ruta", 
+                piloto: usuarioActual, 
+                cine: "Cinépolis Portales", 
+                accion: fase, 
+                fechaExacta: fechaCelular,
+                horaExacta: horaCelular
+            };
 
             if(navigator.onLine) {
                 mostrarCarga();
