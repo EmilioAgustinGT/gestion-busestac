@@ -3,73 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BusesTAC - Acceso</title>
+    <title>BusesTAC - Gestión</title>
     <style>
-        :root { --bg: #000; --card: #1c1c1e; --blue: #0a84ff; --green: #32d74b; --text: #fff; --gray: #8e8e93; }
+        :root { --bg: #000; --card: #1c1c1e; --blue: #0a84ff; --green: #32d74b; --text: #fff; --gray: #8e8e93; --red: #ff3b30; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; }
         .card { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 20px; border: 0.5px solid #333; }
-        .btn { background: var(--blue); border: none; border-radius: 12px; color: #fff; padding: 16px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
-        .btn-green { background: var(--green); }
+        .btn { background: var(--blue); border: none; border-radius: 12px; color: #fff; padding: 16px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; transition: 0.2s; }
+        .btn:active { opacity: 0.7; transform: scale(0.98); }
         .input { background: #2c2c2e; border: none; border-radius: 10px; color: #fff; padding: 14px; width: 92%; margin-top: 10px; font-size: 16px; }
+        select.input { width: 100%; }
         #app { display: none; }
         .login-screen { text-align: center; margin-top: 50px; }
         
-        /* Spinner de Carga */
-        .loading-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--green); border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        /* Spinner y Modales iOS */
+        .loading-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; }
+        .spinner { width: 35px; height: 35px; border: 3px solid var(--green); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Modal iOS Elegante */
-        .ios-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; }
-        .ios-modal-box { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); border-radius: 14px; width: 270px; text-align: center; color: white; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(1.1); transition: transform 0.3s ease; }
-        .ios-modal-content { padding: 20px; font-size: 15px; font-weight: 500; line-height: 1.4; }
+        .ios-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: 0.3s; }
+        .ios-modal-box { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); border-radius: 14px; width: 270px; text-align: center; color: white; border: 1px solid rgba(255,255,255,0.1); transform: scale(1.1); transition: 0.3s; }
+        .ios-modal-content { padding: 20px; font-size: 15px; }
         .ios-modal-btn { border-top: 1px solid rgba(255,255,255,0.1); color: var(--blue); padding: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
-        .ios-modal-btn:active { background: rgba(255,255,255,0.05); border-radius: 0 0 14px 14px; }
     </style>
 </head>
 <body>
 
     <div id="iosModal" class="ios-modal-overlay">
         <div class="ios-modal-box" id="iosModalBox">
-            <div id="modalText" class="ios-modal-content">Mensaje</div>
+            <div id="modalText" class="ios-modal-content"></div>
             <div class="ios-modal-btn" onclick="cerrarAlerta()">OK</div>
         </div>
     </div>
 
-    <div id="loading" class="loading-screen">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading" class="loading-screen"><div class="spinner"></div></div>
 
     <div id="login" class="login-screen">
-        <h1 style="font-size: 32px; margin-bottom: 10px;">BusesTAC</h1>
-        <p style="color: var(--gray);">Ingresa tus credenciales</p>
+        <h1 style="font-size: 32px; margin-bottom: 5px;">BusesTAC</h1>
+        <p style="color: var(--gray); margin-bottom: 30px;">Gestión Operativa</p>
         <div class="card">
             <input type="text" id="user" class="input" placeholder="Usuario">
-            <input type="password" id="pin" class="input" placeholder="PIN de 4 dígitos" maxlength="4" inputmode="numeric">
+            <input type="password" id="pin" class="input" placeholder="PIN" maxlength="4" inputmode="numeric">
             <button class="btn" onclick="validarAcceso()">Entrar</button>
         </div>
     </div>
 
     <div id="app">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 id="saludo">Hola</h2>
-            <button onclick="salir()" style="background: none; border: none; color: var(--blue); font-size: 14px;">Salir</button>
-        </div>
-
-        <div class="card" style="text-align: center;">
-            <div style="width: 70px; height: 70px; border: 6px solid #333; border-top: 6px solid var(--green); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-weight: bold;">85%</div>
-            <p style="margin: 0; font-size: 14px; color: var(--gray);">Meta Bono Q300.00</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="saludo" style="margin:0">Hola</h2>
+            <button onclick="location.reload()" style="background:none; border:none; color:var(--blue); font-size:15px; font-weight:500;">Salir</button>
         </div>
 
         <div class="card">
-            <h3>Cinépolis Portales</h3>
-            <p style="color: var(--gray); font-size: 13px; margin-top: -10px;">Turno Nocturno</p>
-            
-            <button class="btn" style="background: #32ade6;" onclick="enviarAccion('Posicionamiento')">📍 1. Posicionamiento</button>
-            <button class="btn" style="background: var(--blue); margin-top: 12px;" onclick="enviarAccion('Inicio de Ruta')">🚀 2. Iniciar Ruta</button>
-            <button class="btn" style="background: #ff3b30; margin-top: 12px;" onclick="enviarAccion('Finalización')">🏁 3. Finalizar Ruta</button>
-            
-            <button id="btn-sync" class="btn" style="background: #ff9f0a; display: none; margin-top: 15px;" onclick="sincronizar()">🔄 Sincronizar Pendientes</button>
+            <h3 style="margin-top:0">Cinépolis Portales</h3>
+            <button class="btn" style="background:#32ade6" onclick="enviarAccion('Posicionamiento')">📍 1. Posicionamiento</button>
+            <button class="btn" style="background:var(--blue)" onclick="enviarAccion('Inicio de Ruta')">🚀 2. Iniciar Ruta</button>
+            <button class="btn" style="background:var(--red)" onclick="enviarAccion('Finalización')">🏁 3. Finalizar Ruta</button>
+            <button id="btn-sync" class="btn" style="background:#ff9f0a; display:none" onclick="sincronizar()">🔄 Sincronizar Pendientes</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0">Reportar Gasto</h3>
+            <select id="gasto-cat" class="input">
+                <option value="Gasolina">⛽ Gasolina</option>
+                <option value="Parqueo">🅿️ Parqueo</option>
+                <option value="Otros">📦 Otros</option>
+            </select>
+            <input type="number" id="gasto-monto" class="input" placeholder="Monto en Quetzales (Q)">
+            <p style="font-size: 13px; color: var(--gray); margin: 15px 0 5px 0;">Foto de Factura:</p>
+            <input type="file" id="gasto-foto" class="input" accept="image/*" capture="camera">
+            <button class="btn" style="background:var(--green); margin-top:20px;" onclick="subirGasto()">📤 Enviar Factura</button>
         </div>
     </div>
 
@@ -78,116 +80,80 @@
         let usuarioActual = "";
         let pendientes = JSON.parse(localStorage.getItem('busestac_pendientes')) || [];
 
-        // Funciones de UI
         function mostrarCarga() { document.getElementById('loading').style.display = 'flex'; }
         function ocultarCarga() { document.getElementById('loading').style.display = 'none'; }
         
-        // Alerta iOS Personalizada
-        function mostrarAlerta(mensaje) {
-            document.getElementById('modalText').innerHTML = mensaje;
-            const modal = document.getElementById('iosModal');
-            const box = document.getElementById('iosModalBox');
-            modal.style.display = 'flex';
-            setTimeout(() => { modal.style.opacity = '1'; box.style.transform = 'scale(1)'; }, 10);
+        function mostrarAlerta(msg) {
+            document.getElementById('modalText').innerHTML = msg;
+            const m = document.getElementById('iosModal');
+            m.style.display = 'flex';
+            setTimeout(() => { m.style.opacity = '1'; document.getElementById('iosModalBox').style.transform = 'scale(1)'; }, 10);
         }
         function cerrarAlerta() {
-            const modal = document.getElementById('iosModal');
-            const box = document.getElementById('iosModalBox');
-            modal.style.opacity = '0'; box.style.transform = 'scale(1.1)';
-            setTimeout(() => { modal.style.display = 'none'; }, 300);
-        }
-
-        function actualizarUI() {
-            const btnSync = document.getElementById('btn-sync');
-            if(pendientes.length > 0) {
-                btnSync.style.display = 'block';
-                btnSync.innerText = `🔄 Subir ${pendientes.length} reporte(s) guardado(s)`;
-            } else {
-                btnSync.style.display = 'none';
-            }
+            const m = document.getElementById('iosModal');
+            m.style.opacity = '0'; document.getElementById('iosModalBox').style.transform = 'scale(1.1)';
+            setTimeout(() => { m.style.display = 'none'; }, 300);
         }
 
         async function validarAcceso() {
-            const user = document.getElementById('user').value;
-            const pin = document.getElementById('pin').value;
-            if(!user || !pin) return mostrarAlerta("Por favor, completa tus credenciales.");
-
-            if(!navigator.onLine) return mostrarAlerta("Necesitas internet para iniciar sesión.");
-
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pin').value;
+            if(!u || !p) return mostrarAlerta("Ingresa tus datos.");
             mostrarCarga();
             try {
-                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ tipo: "login", usuario: user, pin: pin }) });
+                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ tipo: "login", usuario: u, pin: p }) });
                 const res = await resp.json();
                 if(res.status === "success") {
                     usuarioActual = res.nombre;
                     document.getElementById('login').style.display = 'none';
                     document.getElementById('app').style.display = 'block';
                     document.getElementById('saludo').innerText = "Hola, " + res.nombre;
-                    document.getElementById('pin').value = ""; // Limpiar pin
-                    actualizarUI();
-                } else { mostrarAlerta("Usuario o PIN incorrecto"); }
-            } catch (e) { mostrarAlerta("Error de conexión"); } 
-            finally { ocultarCarga(); }
-        }
-
-        function salir() {
-            usuarioActual = "";
-            document.getElementById('app').style.display = 'none';
-            document.getElementById('login').style.display = 'block';
+                    if(pendientes.length > 0) document.getElementById('btn-sync').style.display = 'block';
+                } else { mostrarAlerta("Claves incorrectas."); }
+            } catch(e) { mostrarAlerta("Sin conexión."); } finally { ocultarCarga(); }
         }
 
         async function enviarAccion(fase) {
-            if(!usuarioActual) return mostrarAlerta("Inicia sesión primero");
-            
-            // 1. Capturamos la hora exacta del celular al momento del clic
             const ahora = new Date();
-            const fechaCelular = ahora.toLocaleDateString('es-GT');
-            const horaCelular = ahora.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-            // 2. Empaquetamos esos datos exactos
             const data = { 
-                tipo: "ruta", 
-                piloto: usuarioActual, 
-                cine: "Cinépolis Portales", 
-                accion: fase, 
-                fechaExacta: fechaCelular,
-                horaExacta: horaCelular
+                tipo: "ruta", piloto: usuarioActual, cine: "Cinépolis Portales", accion: fase,
+                fechaExacta: ahora.toLocaleDateString('es-GT'), horaExacta: ahora.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })
             };
-
             if(navigator.onLine) {
                 mostrarCarga();
-                try {
-                    await fetch(API_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
-                    mostrarAlerta("✅ Reporte de ubicación enviado con éxito.");
-                } catch(e) { guardarOffline(data); }
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
                 ocultarCarga();
+                mostrarAlerta("✅ Reporte enviado.");
             } else {
-                guardarOffline(data);
+                pendientes.push(data);
+                localStorage.setItem('busestac_pendientes', JSON.stringify(pendientes));
+                document.getElementById('btn-sync').style.display = 'block';
+                mostrarAlerta("⚠️ Guardado offline.");
             }
         }
 
-        function guardarOffline(data) {
-            pendientes.push(data);
-            localStorage.setItem('busestac_pendientes', JSON.stringify(pendientes));
-            actualizarUI();
-            mostrarAlerta("⚠️ <b>Sin señal.</b><br><br>Reporte guardado de forma segura en tu celular. Súbelo cuando tengas WiFi.");
-        }
-
-        async function sincronizar() {
-            if(!navigator.onLine) return mostrarAlerta("Aún no tienes conexión a internet.");
+        function subirGasto() {
+            const cat = document.getElementById('gasto-cat').value;
+            const monto = document.getElementById('gasto-monto').value;
+            const file = document.getElementById('gasto-foto').files[0];
+            if(!monto || !file) return mostrarAlerta("Falta monto o foto.");
+            
             mostrarCarga();
-            
-            for(let i = pendientes.length - 1; i >= 0; i--) {
-                try {
-                    await fetch(API_URL, { method: 'POST', body: JSON.stringify(pendientes[i]), mode: 'no-cors' });
-                    pendientes.splice(i, 1);
-                } catch(e) { break; }
-            }
-            
-            localStorage.setItem('busestac_pendientes', JSON.stringify(pendientes));
-            actualizarUI();
-            ocultarCarga();
-            if(pendientes.length === 0) mostrarAlerta("☁️ Todos los reportes han sido sincronizados.");
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const ahora = new Date();
+                const payload = {
+                    tipo: "gasto", piloto: usuarioActual, categoria: cat, monto: monto,
+                    archivo: e.target.result.split(',')[1], mimeType: file.type, nombreArchivo: "Factura_" + usuarioActual + "_" + Date.now(),
+                    fechaExacta: ahora.toLocaleDateString('es-GT'), horaExacta: ahora.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })
+                };
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' });
+                ocultarCarga();
+                mostrarAlerta("✅ Factura subida correctamente.");
+                document.getElementById('gasto-monto').value = "";
+                document.getElementById('gasto-foto').value = "";
+            };
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
