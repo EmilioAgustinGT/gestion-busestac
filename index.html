@@ -13,9 +13,41 @@
         .input { background: #2c2c2e; border: none; border-radius: 10px; color: #fff; padding: 14px; width: 92%; margin-top: 10px; font-size: 16px; }
         #app { display: none; } /* Oculto hasta que loguee */
         .login-screen { text-align: center; margin-top: 50px; }
+        
+        /* Pantalla de Carga (Spinner) */
+        .loading-screen {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid var(--green);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+
+    <div id="loading" class="loading-screen">
+        <div class="spinner"></div>
+        <p>Por favor espera...</p>
+    </div>
 
     <div id="login" class="login-screen">
         <h1 style="font-size: 32px; margin-bottom: 10px;">BusesTAC</h1>
@@ -40,40 +72,96 @@
 
         <div class="card">
             <h3>Cinépolis Portales</h3>
-            <button class="btn" onclick="enviarAccion('Ruta', 'Posicionamiento')">📍 Reportar Posición</button>
+            <button class="btn" onclick="enviarAccion('Posicionamiento')">📍 Reportar Posición</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycby1n-21i6A8WrfirRZQyGVRRUO6wLpWO-PxrbiXj2Pe45Twj_hOyeL613NxW-udJDGZlA/exec"; // PEGA AQUÍ TU URL DE EXECUTABLE
+        const API_URL = "https://script.google.com/macros/s/AKfycby1n-21i6A8WrfirRZQyGVRRUO6wLpWO-PxrbiXj2Pe45Twj_hOyeL613NxW-udJDGZlA/exec"; 
         let usuarioActual = "";
+        const loading = document.getElementById('loading');
+        const loginScreen = document.getElementById('login');
+        const appScreen = document.getElementById('app');
+        const greeting = document.getElementById('saludo');
 
+        // Funciones de Carga
+        function mostrarCarga() { loading.style.display = 'flex'; }
+        function ocultarCarga() { loading.style.display = 'none'; }
+
+        // Validar Acceso (Login)
         async function validarAcceso() {
             const user = document.getElementById('user').value;
             const pin = document.getElementById('pin').value;
             
             if(!user || !pin) return alert("Completa los datos");
 
-            const resp = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ tipo: "login", usuario: user, pin: pin })
-            });
-            
-            const res = await resp.json();
-            
-            if(res.status === "success") {
-                usuarioActual = res.nombre;
-                document.getElementById('login').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                document.getElementById('saludo').innerText = "Hola, " + res.nombre;
-            } else {
-                alert("Usuario o PIN incorrecto");
+            mostrarCarga(); // MOSTRAR CARGA
+
+            try {
+                const resp = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ tipo: "login", usuario: user, pin: pin })
+                });
+                
+                const res = await resp.json();
+                
+                if(res.status === "success") {
+                    usuarioActual = res.nombre;
+                    loginScreen.style.display = 'none';
+                    appScreen.style.display = 'block';
+                    greeting.innerText = "Hola, " + res.nombre;
+                    // Limpiar inputs
+                    document.getElementById('user').value = "";
+                    document.getElementById('pin').value = "";
+                } else {
+                    alert("Usuario o PIN incorrecto");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Hubo un problema de conexión.");
+            } finally {
+                ocultarCarga(); // OCULTAR CARGA
             }
         }
 
-        async function enviarAccion(tipo, accion) {
-            // Aquí va la lógica de envío de rutas que ya tenías
-            alert("Acción registrada para " + usuarioActual);
+        // Salir (Cerrar sesión)
+        function salir() {
+            usuarioActual = "";
+            appScreen.style.display = 'none';
+            loginScreen.style.display = 'flex';
+        }
+
+        // Enviar Reporte de Ruta
+        async function enviarAccion(fase) {
+            if(!usuarioActual) return alert("Por favor, inicia sesión");
+            
+            mostrarCarga(); // MOSTRAR CARGA
+
+            const data = {
+                tipo: "ruta",
+                piloto: usuarioActual,
+                cine: "Cinépolis Portales",
+                accion: fase,
+                fecha: new Date().toLocaleDateString()
+            };
+
+            try {
+                const resp = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                if (resp.ok) {
+                    alert("¡" + fase + " reportado con éxito!");
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Error al reportar. Intenta de nuevo.");
+            } finally {
+                ocultarCarga(); // OCULTAR CARGA
+            }
         }
     </script>
 </body>
